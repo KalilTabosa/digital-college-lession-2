@@ -1,80 +1,58 @@
-export function Modal(options = {}) {
-  const settings = {
-    modalClass: 'modal',
-    modalCloseBtnClass: 'modal__close-button',
-    modalOpenedClass: 'modal--open',
-    ...options
-  }
-
-  const modals = {}
-
-  function _onClickToggleElement(e) {
+export function Modal() {
+  function _onClickDetailsButton(e) {
     e.preventDefault()
-    const modalId = e.target.dataset.toggleModal
+    console.log('dataset', e.target, e.target.dataset)
+    const modalId = e.target.dataset.openModal
     openModal(modalId)
   }
 
-  function _onClickModalCloseBtn(e) {
+  function _onClickModalCloseButton(e) {
     e.preventDefault()
-    const modalId = e.target.modalId
+    const modalId = e.target.dataset.closeModal
     closeModal(modalId)
   }
 
   function _startModalCloseBtnEvtListener() {
-    for (let modalId in modals) {
-      const modalCloseBtn = modals[modalId].modalCloseBtnElement
-      if (modalCloseBtn) {
-        modalCloseBtn.addEventListener('click', _onClickModalCloseBtn)
-      }
+    const modals = document.querySelectorAll(`[data-modal]`)
+
+    if (modals) {
+      modals.forEach((modal) => {
+        const closeButton = modal.querySelector('[data-close-modal]')
+        if (closeButton) {
+          closeButton.addEventListener('click', _onClickModalCloseButton)
+        }
+      })
     }
   }
 
-  function _startModalToggleEvtListener() {
-    for (let modalId in modals) {
-      modals[modalId].toggleElement.addEventListener(
-        'click',
-        _onClickToggleElement
-      )
-    }
-  }
-
-  function addModal(toggleElement) {
-    const modalId = toggleElement.dataset.toggleModal
-    const modalElement = document.querySelector(`[data-modal="${modalId}"]`)
-    const modalCloseBtnElement = modalElement.querySelector(
-      `.${settings.modalCloseBtnClass}`
-    )
-    modalCloseBtnElement.modalId = modalId
-    modals[modalId] = {
-      modalId,
-      modalElement,
-      modalCloseBtnElement,
-      toggleElement
-    }
-    _startModalCloseBtnEvtListener()
-    _startModalToggleEvtListener()
+  function _startDetailsButtonEventListener() {
+    const detailButtons = document.querySelectorAll('[data-open-modal]')
+    detailButtons.forEach((detailButton) => {
+      detailButton.addEventListener('click', _onClickDetailsButton)
+    })
   }
 
   function openModal(modalId) {
-    if (modals[modalId]) {
-      modals[modalId].modalElement.classList.add(settings.modalOpenedClass)
+    const modal = document.querySelector(`[data-modal="${modalId}"]`)
+    if (modal) {
+      modal.classList.add('modal--open')
     }
   }
 
   function closeModal(modalId) {
-    modals[modalId].modalElement.classList.remove(settings.modalOpenedClass)
+    const modal = document.querySelector(`[data-modal="${modalId}"]`)
+    if (modal) {
+      modal.classList.remove('modal--open')
+    }
   }
 
   function init() {
-    const modalToggles = document.querySelectorAll('[data-toggle-modal]')
-    modalToggles.forEach((modalToggle) => {
-      addModal(modalToggle)
-    })
+    _startDetailsButtonEventListener()
+    _startModalCloseBtnEvtListener()
   }
 
   return {
     init,
-    addModal,
     closeModal,
     openModal
   }
